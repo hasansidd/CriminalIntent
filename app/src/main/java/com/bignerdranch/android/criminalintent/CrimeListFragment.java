@@ -19,6 +19,8 @@ import android.widget.Toast;
 import java.text.DateFormat;
 import java.util.List;
 
+import static android.content.ContentValues.TAG;
+
 public class CrimeListFragment extends Fragment {
     private RecyclerView mCrimeRecyclerView;
     private CrimeAdapter mAdapter;
@@ -81,7 +83,8 @@ public class CrimeListFragment extends Fragment {
 
         @Override
         public void onClick(View v) {
-            Intent intent = CrimeActivity.newIntent(getActivity(), mCrime.getId());
+            Intent intent = CrimePagerActivity.newIntent(getActivity(), mCrime.getId());
+            Log.d("criminal", "starting intent");
             startActivity(intent);
         }
     }
