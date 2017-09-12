@@ -1,5 +1,7 @@
 package com.bignerdranch.android.criminalintent;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -27,6 +29,26 @@ public class CrimeFragment extends Fragment{
     private CheckBox mSolvedCheckBox;
     private static final String ARG_CRIME_ID = "crime_id";
     private static final String DIALOG_DATE = "DialogDate";
+    private static final int REQUEST_DATE = 0;
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode != Activity.RESULT_OK) {
+            return;
+        }
+
+        if (requestCode == REQUEST_DATE) {
+            Date date = (Date) data.getSerializableExtra(DatePickerFragment.EXTRA_DATE);
+            mCrime.setDate(date);
+            updateDate();
+        }
+    }
+
+    private void updateDate() {
+        android.text.format.DateFormat df = new android.text.format.DateFormat();
+        String temp = (String) df.format("EEEE, MMM dd, yyyy", mCrime.getDate());
+        mDateButton.setText(temp);
+    }
 
     public static CrimeFragment newInstance(UUID crimeId) {
         Bundle args = new Bundle();
@@ -70,12 +92,13 @@ public class CrimeFragment extends Fragment{
         });
 
         mDateButton = (Button) v.findViewById(R.id.crime_date);
-        mDateButton.setText(mCrime.getDate().toString());
+        updateDate();
         mDateButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 FragmentManager fragmentManager = getFragmentManager();
                 DatePickerFragment dialog = DatePickerFragment.newInstance(mCrime.getDate());
+                dialog.setTargetFragment(CrimeFragment.this, REQUEST_DATE);
                 dialog.show(fragmentManager, DIALOG_DATE);
             }
         });
@@ -88,9 +111,6 @@ public class CrimeFragment extends Fragment{
                 mCrime.setSolved(isChecked);
             }
         });
-
-
-
         return v;
     }
     
