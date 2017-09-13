@@ -3,6 +3,7 @@ package com.bignerdranch.android.criminalintent;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -19,10 +20,13 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import static android.view.View.VISIBLE;
+
 public class CrimeListFragment extends Fragment {
     private RecyclerView mCrimeRecyclerView;
     private CrimeAdapter mAdapter;
     private boolean mSubtitleVisible;
+    private ConstraintLayout emptyListLayout;
     private static final String SAVED_SUBTITLE_VISIBLE = "subtitle";
 
     @Override
@@ -91,6 +95,7 @@ public class CrimeListFragment extends Fragment {
 
         mCrimeRecyclerView = (RecyclerView) view.findViewById(R.id.crime_recycler_view);
         mCrimeRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        emptyListLayout = (ConstraintLayout) view.findViewById(R.id.empty_list_layout);
 
         updateUI();
 
@@ -111,6 +116,11 @@ public class CrimeListFragment extends Fragment {
             mAdapter = new CrimeAdapter(crimes);
             mCrimeRecyclerView.setAdapter(mAdapter);
         } else {
+            if (crimes.size()==0){
+                emptyListLayout.setVisibility(VISIBLE);
+            } else {
+                emptyListLayout.setVisibility(View.GONE);
+            }
             mAdapter.setCrimes(crimes);
             mAdapter.notifyDataSetChanged();
         }
@@ -139,7 +149,7 @@ public class CrimeListFragment extends Fragment {
             android.text.format.DateFormat df = new android.text.format.DateFormat();
             String temp = (String) df.format("EEEE, MMM dd, yyyy", mCrime.getDate());
             mDateTextView.setText(temp);
-            mSolvedImageView.setVisibility(crime.isSolved() ? View.VISIBLE : View.GONE);
+            mSolvedImageView.setVisibility(crime.isSolved() ? VISIBLE : View.GONE);
         }
 
         @Override
