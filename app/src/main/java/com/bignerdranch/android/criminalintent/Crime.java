@@ -8,23 +8,28 @@ public class Crime {
     private String mTitle;
     private Date mDate;
     private boolean mSolved;
-    private boolean mRequiresPolice;
+
+    public String getSuspect() {
+        return mSuspect;
+    }
+
+    public void setSuspect(String suspect) {
+        mSuspect = suspect;
+    }
+
+    private String mSuspect;
 
     public Crime() {
-        mId = UUID.randomUUID();
+        this(UUID.randomUUID());
+    }
+
+    public Crime(UUID id) {
+        mId = id;
         mDate = new Date();
     }
 
     public String getTitle() {
         return mTitle;
-    }
-
-    public boolean isRequiresPolice() {
-        return mRequiresPolice;
-    }
-
-    public void setRequiresPolice(boolean requiresPolice) {
-        mRequiresPolice = requiresPolice;
     }
 
     public void setTitle(String title) {
