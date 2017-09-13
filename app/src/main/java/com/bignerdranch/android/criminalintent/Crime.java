@@ -9,6 +9,10 @@ public class Crime {
     private Date mDate;
     private boolean mSolved;
 
+    public String getPhotoFilename() {
+        return "IMG_" + getId().toString() + ".jpg";
+    }
+
     public String getSuspect() {
         return mSuspect;
     }
