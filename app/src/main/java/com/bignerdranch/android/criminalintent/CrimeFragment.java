@@ -1,6 +1,7 @@
 package com.bignerdranch.android.criminalintent;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -14,6 +15,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.FileProvider;
+import android.telecom.Call;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
@@ -49,7 +51,7 @@ public class CrimeFragment extends Fragment{
     private ImageView mPhotoView;
     private ImageButton mPhotoButton;
     private File mPhotoFile;
-
+    private Callbacks mCallbacks;
 
     private static final String ARG_CRIME_ID = "crime_id";
     private static final String DIALOG_DATE = "DialogDate";
@@ -57,25 +59,28 @@ public class CrimeFragment extends Fragment{
     private static final int REQUEST_CONTACT = 1;
     private static final int REQUEST_PHOTO = 2;
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.fragment_crime,menu);
+
+    public static CrimeFragment newInstance(UUID crimeId) {
+        Bundle args = new Bundle();
+        args.putSerializable(ARG_CRIME_ID, crimeId);
+
+        CrimeFragment fragment = new CrimeFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+
+
+    public interface Callbacks {
+        void OnCrimeUpdated(Crime crime);
     }
 
 
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.delete_crime:
-                CrimeLab.get(getActivity()).deleteCrime(mCrime);
-                Toast.makeText(getActivity(), "Deleted Crime", Toast.LENGTH_SHORT).show();
-                getActivity().finish();
-                return true;
-            default:
-                return true;
-        }
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mCallbacks = (Callbacks) context;
     }
 
 
@@ -135,6 +140,7 @@ public class CrimeFragment extends Fragment{
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 mCrime.setTitle(s.toString());
+                updateCrime();
             }
 
             @Override
@@ -163,6 +169,8 @@ public class CrimeFragment extends Fragment{
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 mCrime.setSolved(isChecked);
+                updateCrime();
+
             }
         });
 
@@ -199,6 +207,52 @@ public class CrimeFragment extends Fragment{
             }
         });
         return v;
+    }
+
+
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.fragment_crime,menu);
+    }
+
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.delete_crime:
+                CrimeLab.get(getActivity()).deleteCrime(mCrime);
+
+                int temp = ((ViewGroup) getView().getParent()).getId();
+                Log.d("neededinfo", String.valueOf(temp));
+                Toast.makeText(getActivity(), R.string.crime_deleted , Toast.LENGTH_SHORT).show();
+                updateCrime();
+                if (temp == 2131492961) {
+                    //Master-Detail layout (Tablet)
+                    getActivity().getSupportFragmentManager()
+                            .beginTransaction()
+                            .remove(getActivity()
+                                    .getSupportFragmentManager()
+                                    .findFragmentById(R.id.detail_fragment_container))
+                            .commit();
+                } else if (temp == 2131492959) {
+                    //Detail only layout (Phone)
+                    getActivity().finish();
+                }
+                return true;
+            default:
+                return true;
+        }
+    }
+
+
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mCallbacks = null;
     }
 
 
@@ -299,13 +353,10 @@ public class CrimeFragment extends Fragment{
 
 
 
-    public static CrimeFragment newInstance(UUID crimeId) {
-        Bundle args = new Bundle();
-        args.putSerializable(ARG_CRIME_ID, crimeId);
-
-        CrimeFragment fragment = new CrimeFragment();
-        fragment.setArguments(args);
-        return fragment;
+    private void updateCrime() {
+        CrimeLab.get(getActivity()).updateCrime(mCrime);
+        mCallbacks.OnCrimeUpdated(mCrime);
     }
+
     
 }
