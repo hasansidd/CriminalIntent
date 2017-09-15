@@ -50,6 +50,7 @@ public class CrimeFragment extends Fragment{
     private ImageButton mPhotoButton;
     private File mPhotoFile;
 
+
     private static final String ARG_CRIME_ID = "crime_id";
     private static final String DIALOG_DATE = "DialogDate";
     private static final int REQUEST_DATE = 0;
@@ -61,6 +62,8 @@ public class CrimeFragment extends Fragment{
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.fragment_crime,menu);
     }
+
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -74,6 +77,8 @@ public class CrimeFragment extends Fragment{
                 return true;
         }
     }
+
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
